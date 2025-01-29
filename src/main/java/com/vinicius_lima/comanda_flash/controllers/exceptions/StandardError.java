@@ -1,9 +1,11 @@
 package com.vinicius_lima.comanda_flash.controllers.exceptions;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class StandardError {
-    private Instant timestamp;
+    private String timestamp;
     private Integer status;
     private String error;
     private String message;
@@ -12,7 +14,7 @@ public class StandardError {
     public StandardError() {
     }
 
-    public StandardError(Instant timestamp, Integer status, String error, String message, String path) {
+    public StandardError(String timestamp, Integer status, String error, String message, String path) {
         this.timestamp = timestamp;
         this.status = status;
         this.error = error;
@@ -20,12 +22,13 @@ public class StandardError {
         this.path = path;
     }
 
-    public Instant getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
     public void setTimestamp(Instant timestamp) {
-        this.timestamp = timestamp;
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        this.timestamp = LocalDateTime.now().format(formatter);
     }
 
     public Integer getStatus() {

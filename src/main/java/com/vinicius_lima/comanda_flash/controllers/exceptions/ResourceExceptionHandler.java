@@ -1,6 +1,7 @@
 package com.vinicius_lima.comanda_flash.controllers.exceptions;
 
 import com.vinicius_lima.comanda_flash.enums.StatusText;
+import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
 import java.util.Arrays;
-import java.util.Objects;
 
 @ControllerAdvice
 public class ResourceExceptionHandler {
@@ -50,13 +50,30 @@ public class ResourceExceptionHandler {
     }
 
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ValidationError> notFound(ResourceNotFoundException e, HttpServletRequest request) {
+
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setError("Not Found");
+        error.setMessage(e.getMessage());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public ResponseEntity<ValidationError> NumberTableUniqueException(DataIntegrityViolationException e, HttpServletRequest request) {
+    public ResponseEntity<ValidationError> dataIntegrityViolation(DataIntegrityViolationException e, HttpServletRequest request) {
         ValidationError error = new ValidationError();
         error.setTimestamp(Instant.now());
         error.setStatus(HttpStatus.CONFLICT.value());
-        error.setError("Table conflict");
-        error.setMessage("Número da mesa já existe, tente outro número.");
+        error.setError("Conflict");
+        if (e.getMessage().contains("Unique index")) {
+            error.setMessage("Não é possível criar a mesa. Uma mesa com os mesmos dados já existe. " + "Por favor, verifique os dados e tente novamente.");
+        } else {
+            error.setMessage("Não é possível excluir o cliente. O cliente possui pedidos associados. " + "Por favor, remova os pedidos antes de tentar excluir o cliente.");
+        }
         error.setPath(request.getRequestURI());
 
         return ResponseEntity.status(error.getStatus()).body(error);

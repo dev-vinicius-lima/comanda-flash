@@ -1,11 +1,19 @@
 package com.vinicius_lima.comanda_flash.dto;
 
+import com.vinicius_lima.comanda_flash.entities.Customer;
+
 public class CustomerDTO {
     private Long id;
     private String name;
     private boolean isAnonymous;
 
     public CustomerDTO() {
+    }
+
+    public CustomerDTO(Customer customer) {
+        id = customer.getId();
+        name = customer.getName();
+        isAnonymous = customer.isAnonymous();
     }
 
     public Long getId() {

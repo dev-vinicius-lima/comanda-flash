@@ -2,19 +2,27 @@ package com.vinicius_lima.comanda_flash.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vinicius_lima.comanda_flash.entities.Table;
+import com.vinicius_lima.comanda_flash.enums.StatusText;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 public class TableDTO {
     @JsonIgnore
     private Long id;
+
+    @NotNull(message = "O número da mesa é obrigatório.")
     private Integer number;
-    private String status;
+    @NotBlank(message = "O status da mesa é obrigatório.")
+    private StatusText status;
 
     public TableDTO() {
     }
 
     public TableDTO(Table entity) {
         number = entity.getNumber();
-        status = entity.getStatus();
+        status = StatusText.valueOf(entity.getStatus());
     }
 
     public Long getId() {
@@ -29,11 +37,11 @@ public class TableDTO {
         this.number = number;
     }
 
-    public String getStatus() {
+    public StatusText getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(StatusText status) {
         this.status = status;
     }
 }

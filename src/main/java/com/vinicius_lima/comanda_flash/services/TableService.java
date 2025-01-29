@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class TableService {
@@ -19,7 +18,7 @@ public class TableService {
     public TableDTO insert(TableDTO dto) {
         Table entity = new Table();
         entity.setNumber(dto.getNumber());
-        entity.setStatus(dto.getStatus());
+        entity.setStatus(dto.getStatus().toString());
         entity = tableRepository.save(entity);
         return new TableDTO(entity);
     }
@@ -37,7 +36,7 @@ public class TableService {
         try {
             Table entity = findById(id);
             entity.setNumber(dto.getNumber());
-            entity.setStatus(dto.getStatus());
+            entity.setStatus((dto.getStatus().toString()));
             entity = tableRepository.save(entity);
             return new TableDTO(entity);
         } catch (EntityNotFoundException e) {

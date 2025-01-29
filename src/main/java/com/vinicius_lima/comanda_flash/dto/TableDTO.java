@@ -3,10 +3,11 @@ package com.vinicius_lima.comanda_flash.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vinicius_lima.comanda_flash.entities.Table;
 import com.vinicius_lima.comanda_flash.enums.StatusText;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
+
 
 public class TableDTO {
     @JsonIgnore
@@ -14,8 +15,9 @@ public class TableDTO {
 
     @NotNull(message = "O número da mesa é obrigatório.")
     private Integer number;
-    @NotBlank(message = "O status da mesa é obrigatório.")
-    private StatusText status;
+
+    @Enumerated(EnumType.STRING)
+    private StatusText status = StatusText.LOCAL;
 
     public TableDTO() {
     }

@@ -41,4 +41,6 @@ public class Customer {
     public void setAnonymous(boolean anonymous) {
         isAnonymous = anonymous;
     }
+
+
 }

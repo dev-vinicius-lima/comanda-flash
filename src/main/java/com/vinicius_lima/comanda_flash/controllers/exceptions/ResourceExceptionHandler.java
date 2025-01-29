@@ -2,6 +2,7 @@ package com.vinicius_lima.comanda_flash.controllers.exceptions;
 
 import com.vinicius_lima.comanda_flash.enums.StatusText;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Objects;
 
 @ControllerAdvice
 public class ResourceExceptionHandler {
@@ -45,6 +47,24 @@ public class ResourceExceptionHandler {
 
     private String getValidEnumValues() {
         return Arrays.toString(StatusText.values());
+    }
+
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ValidationError> NumberTableUniqueException(DataIntegrityViolationException e, HttpServletRequest request) {
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(HttpStatus.CONFLICT.value());
+        error.setError("Table conflict");
+        error.setMessage("Número da mesa já existe, tente outro número.");
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.badRequest().body(ex.getMessage());
     }
 
 }

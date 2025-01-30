@@ -81,6 +81,12 @@ public class Product {
         updatedAt = LocalDateTime.now();
     }
 
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
@@ -89,10 +95,6 @@ public class Product {
         return updatedAt;
     }
 
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
 
     @Override
     public boolean equals(Object o) {

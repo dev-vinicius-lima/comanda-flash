@@ -4,6 +4,7 @@ import com.vinicius_lima.comanda_flash.enums.StatusText;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.mapping.PropertyReferenceException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -82,6 +83,18 @@ public class ResourceExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgument(IllegalArgumentException ex) {
         return ResponseEntity.badRequest().body(ex.getMessage());
+    }
+
+    @ExceptionHandler(PropertyReferenceException.class)
+    public ResponseEntity<ValidationError> handlePropertyReference(PropertyReferenceException e, HttpServletRequest request) {
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(HttpStatus.BAD_REQUEST.value());
+        error.setError("Bad Request");
+        error.setMessage(e.getMessage());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(error.getStatus()).body(error);
     }
 
 }

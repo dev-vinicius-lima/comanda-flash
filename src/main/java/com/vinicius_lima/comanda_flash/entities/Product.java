@@ -1,9 +1,12 @@
 package com.vinicius_lima.comanda_flash.entities;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity(name = "tb_product")
 public class Product {
@@ -12,15 +15,28 @@ public class Product {
     private Long id;
     private String name;
     private Double unitPrice;
-    private String category;
+    private String imgUrl;
+
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private LocalDateTime createdAt;
+    @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+    private LocalDateTime updatedAt;
+
+
+    @ManyToMany
+    @JoinTable(name = "tb_product_category", joinColumns = @JoinColumn(name = "product_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
+    Set<Category> categories = new HashSet<>();
+
 
     public Product() {
     }
 
-    public Product(String name, Double unitPrice, String category) {
+    public Product(Long id, String name, Double unitPrice, String imgUrl) {
+        this.id = id;
         this.name = name;
         this.unitPrice = unitPrice;
-        this.category = category;
+        this.imgUrl = imgUrl;
+
     }
 
     public Long getId() {
@@ -43,11 +59,50 @@ public class Product {
         this.unitPrice = unitPrice;
     }
 
-    public String getCategory() {
-        return category;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
+    }
+
+    public Set<Category> getCategories() {
+        return categories;
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Product product = (Product) o;
+        return Objects.equals(id, product.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

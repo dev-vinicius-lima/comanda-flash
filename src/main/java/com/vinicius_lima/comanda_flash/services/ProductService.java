@@ -1,30 +1,82 @@
 package com.vinicius_lima.comanda_flash.services;
 
+import com.vinicius_lima.comanda_flash.dto.CategoryDTO;
+import com.vinicius_lima.comanda_flash.dto.ProductDTO;
+import com.vinicius_lima.comanda_flash.entities.Category;
 import com.vinicius_lima.comanda_flash.entities.Product;
+import com.vinicius_lima.comanda_flash.repositories.CategoryRepository;
 import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class ProductService {
     @Autowired
-    private ProductRepository productRepository;
+    private ProductRepository repository;
 
-    public Product saveProduct(Product product) {
-        return productRepository.save(product);
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Transactional
+    public ProductDTO insert(ProductDTO dto) {
+        Product entity = new Product();
+        copyDtoToEntity(dto, entity);
+        entity = repository.save(entity);
+        return new ProductDTO(entity);
     }
 
-    public List<Product> getAllProducts() {
-        return productRepository.findAll();
+
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> findAllPaged(Pageable pageable) {
+        Page<Product> list = repository.findAll(pageable);
+        return list.map(ProductDTO::new);
     }
 
-    public Product getProductById(Long id) {
-        return productRepository.findById(id).orElse(null);
+    @Transactional(readOnly = true)
+    public ProductDTO getProductById(Long id) {
+        Product entity = repository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Resource not found"));
+        return new ProductDTO(entity);
     }
 
     public void deleteProduct(Long id) {
-        productRepository.deleteById(id);
+        repository.deleteById(id);
+    }
+
+    @Transactional
+    public ProductDTO update(Long id, ProductDTO dto) {
+        try {
+            Product entity = repository.getReferenceById(id);
+            copyDtoToEntity(dto, entity);
+            entity = repository.save(entity);
+            return new ProductDTO(entity);
+        } catch (EntityNotFoundException e) {
+            throw new ResourceNotFoundException("Id not found =>" + id);
+        }
+    }
+
+    @Transactional
+    public void delete(Long id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Id not found => " + id);
+        }
+        repository.deleteById(id);
+    }
+
+    private void copyDtoToEntity(ProductDTO dto, Product entity) {
+        entity.setName(dto.getName());
+        entity.setUnitPrice(dto.getUnitPrice());
+        entity.setImgUrl(dto.getImgUrl());
+
+        entity.getCategories().clear();
+        for (CategoryDTO catDTO : dto.getCategories()) {
+            Category category = categoryRepository.getReferenceById(catDTO.getId());
+            entity.getCategories().add(category);
+        }
     }
 }

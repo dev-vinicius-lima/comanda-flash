@@ -13,6 +13,8 @@ import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundExcep
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -60,10 +62,14 @@ public class OrderService {
         order.getItems().add(orderItem);
         orderRepository.save(order);
 
-        double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
+        BigDecimal totalValue = order.getItems().stream()
+                .map(item -> BigDecimal.valueOf(item.getTotalPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
+
 
         CustomerOrderDTO orderDTO = convertToDTO(order);
-        orderDTO.setTotalValue(totalValue);
+        orderDTO.setTotalValue(totalValue.doubleValue());
         return orderDTO;
 
     }

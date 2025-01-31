@@ -1,15 +1,12 @@
 package com.vinicius_lima.comanda_flash.controllers;
 
 import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
-import com.vinicius_lima.comanda_flash.dto.ResponseMessageHttpDTO;
 import com.vinicius_lima.comanda_flash.services.CustomerService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 

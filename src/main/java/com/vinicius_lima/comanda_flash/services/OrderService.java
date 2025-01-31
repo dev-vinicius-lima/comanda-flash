@@ -3,7 +3,6 @@ package com.vinicius_lima.comanda_flash.services;
 import com.vinicius_lima.comanda_flash.dto.ClosedOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
-import com.vinicius_lima.comanda_flash.dto.OrderItemDTO;
 import com.vinicius_lima.comanda_flash.entities.*;
 import com.vinicius_lima.comanda_flash.repositories.*;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
@@ -16,7 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,7 +36,7 @@ public class OrderService {
 
 
     public CustomerOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
-        Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new RuntimeException("Table not found"));
+        Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new ResourceNotFoundException("Table not found"));
 
         Customer customer = customerRepository.findByName(customerDTO.getName()).orElseGet(() -> {
             Customer newCustomer = convertToEntity(customerDTO);
@@ -134,18 +132,21 @@ public class OrderService {
 
     @Transactional
     public void deleteProductFromOrder(Long orderId, Long productId) {
-        System.out.println("Attempting to delete product with ID: " + productId + " from order with ID: " + orderId);
 
-        CustomerOrder order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         OrderItem orderItem = order.getItems().stream()
                 .filter(item -> item.getProduct().getId().equals(productId))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found in the order"));
+                .findFirst().orElseThrow(() -> new ResourceNotFoundException("Product not found in the order"));
 
-        order.getItems().remove(orderItem);
-        orderItemRepository.delete(orderItem);
-        orderRepository.save(order);
+        if (orderItem.getQuantity() > 1) {
+            orderItem.setQuantity(orderItem.getQuantity() - 1);
+        } else {
+            order.getItems().remove(orderItem);
+            orderItemRepository.delete(orderItem);
+            orderRepository.save(order);
+        }
+
+
     }
 }

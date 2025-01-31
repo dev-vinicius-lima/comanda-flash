@@ -5,6 +5,8 @@ import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,6 +19,19 @@ import java.util.Map;
 public class OrderController {
     @Autowired
     private OrderService service;
+
+    @GetMapping
+    public ResponseEntity<Page<CustomerOrderDTO>> findAllPaged(Pageable pageable) {
+        Page<CustomerOrderDTO> orderList = service.findAllPaged(pageable);
+        return ResponseEntity.ok().body(orderList);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<CustomerOrderDTO> findById(@PathVariable Long id) {
+        CustomerOrderDTO orderDTO = service.findById(id);
+
+        return ResponseEntity.ok().body(orderDTO);
+    }
 
     @PostMapping("/open")
     public ResponseEntity<CustomerOrderDTO> openOrder(@RequestParam(value = "number") Integer tableNumber, @RequestBody CustomerDTO dto) {

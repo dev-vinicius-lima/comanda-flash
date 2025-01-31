@@ -11,6 +11,8 @@ import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
 import com.vinicius_lima.comanda_flash.repositories.TableRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -48,11 +50,9 @@ public class OrderService {
 
     public CustomerOrderDTO addProductToOrder(Long orderId, Long productId, Integer quantity) {
 
-        CustomerOrder order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
@@ -62,9 +62,7 @@ public class OrderService {
         order.getItems().add(orderItem);
         orderRepository.save(order);
 
-        BigDecimal totalValue = order.getItems().stream()
-                .map(item -> BigDecimal.valueOf(item.getTotalPrice()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
         totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
 
 
@@ -104,7 +102,25 @@ public class OrderService {
     }
 
     public CustomerOrderDTO findById(Long orderId) {
-        return convertToDTO(orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found")));
+        CustomerOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
+        totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
+
+        CustomerOrderDTO orderDTO = convertToDTO(order);
+        orderDTO.setTotalValue(totalValue.doubleValue());
+        return orderDTO;
     }
 
+    public Page<CustomerOrderDTO> findAllPaged(Pageable pageable) {
+        Page<CustomerOrder> orderList = orderRepository.findAll(pageable);
+
+        return orderList.map(order -> {
+            double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
+            CustomerOrderDTO dto = convertToDTO(order);
+            dto.setTotalValue(totalValue);
+            return dto;
+        });
+    }
 }

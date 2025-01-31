@@ -5,15 +5,13 @@ import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.OrderItemDTO;
 import com.vinicius_lima.comanda_flash.entities.*;
-import com.vinicius_lima.comanda_flash.repositories.CustomerRepository;
-import com.vinicius_lima.comanda_flash.repositories.OrderRepository;
-import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
-import com.vinicius_lima.comanda_flash.repositories.TableRepository;
+import com.vinicius_lima.comanda_flash.repositories.*;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -34,6 +32,10 @@ public class OrderService {
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
+
 
     public CustomerOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
         Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new RuntimeException("Table not found"));
@@ -102,8 +104,7 @@ public class OrderService {
     }
 
     public CustomerOrderDTO findById(Long orderId) {
-        CustomerOrder order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
         totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
@@ -122,5 +123,29 @@ public class OrderService {
             dto.setTotalValue(totalValue);
             return dto;
         });
+    }
+
+    public void delete(Long id) {
+        if (orderRepository.findById(id).isEmpty()) {
+            throw new ResourceNotFoundException("Order not found");
+        }
+        orderRepository.deleteById(id);
+    }
+
+    @Transactional
+    public void deleteProductFromOrder(Long orderId, Long productId) {
+        System.out.println("Attempting to delete product with ID: " + productId + " from order with ID: " + orderId);
+
+        CustomerOrder order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        OrderItem orderItem = order.getItems().stream()
+                .filter(item -> item.getProduct().getId().equals(productId))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found in the order"));
+
+        order.getItems().remove(orderItem);
+        orderItemRepository.delete(orderItem);
+        orderRepository.save(order);
     }
 }

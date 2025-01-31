@@ -55,4 +55,16 @@ public class OrderController {
         return ResponseEntity.ok(closedOrderDTO);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{orderId}/products/{productId}")
+    public ResponseEntity<Void> deleteProductFromOrder(@PathVariable Long orderId, @PathVariable Long productId) {
+        service.deleteProductFromOrder(orderId, productId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

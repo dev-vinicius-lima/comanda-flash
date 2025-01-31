@@ -2,13 +2,16 @@ package com.vinicius_lima.comanda_flash.services;
 
 import com.vinicius_lima.comanda_flash.dto.TableDTO;
 import com.vinicius_lima.comanda_flash.entities.Table;
+import com.vinicius_lima.comanda_flash.enums.StatusText;
 import com.vinicius_lima.comanda_flash.repositories.TableRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class TableService {
@@ -28,9 +31,11 @@ public class TableService {
         return entityList.stream().map(TableDTO::new).toList();
     }
 
-    public Table findById(Long id) {
-        return tableRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Table not found"));
+    @Transactional(readOnly = true)
+    public List<TableDTO> findAllOpenTables() {
+        return tableRepository.findByHasOpenOrders().stream().map(TableDTO::new).collect(Collectors.toList());
     }
+
 
     public TableDTO update(Long id, TableDTO dto) {
         try {
@@ -44,7 +49,12 @@ public class TableService {
         }
     }
 
+    private Table findById(Long id) {
+        return tableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Id not found => " + id));
+    }
+
     public void delete(Long id) {
         tableRepository.deleteById(id);
     }
+
 }

@@ -23,6 +23,12 @@ public class TableController {
         return ResponseEntity.ok(service.findAll());
     }
 
+    @GetMapping("/open")
+    public ResponseEntity<List<TableDTO>> findAllOpenTables() {
+        List<TableDTO> dtos = service.findAllOpenTables();
+        return ResponseEntity.ok(dtos);
+    }
+
     @PostMapping
     public ResponseEntity<TableDTO> create(@Valid @RequestBody TableDTO dto) {
         dto = service.insert(dto);

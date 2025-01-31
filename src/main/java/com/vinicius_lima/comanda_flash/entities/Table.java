@@ -5,7 +5,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity(name = "tb_table")
+@Entity
+@jakarta.persistence.Table(name = "tb_table")
 public class Table {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -14,7 +15,7 @@ public class Table {
     private Integer number;
     private String status;
 
-    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "table", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<CustomerOrder> orders = new ArrayList<>();
 
     public Table() {

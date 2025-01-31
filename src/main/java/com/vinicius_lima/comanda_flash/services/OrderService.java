@@ -36,6 +36,7 @@ public class OrderService {
 
 
     public CustomerOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
+
         Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new ResourceNotFoundException("Table not found"));
 
         Customer customer = customerRepository.findByName(customerDTO.getName()).orElseGet(() -> {

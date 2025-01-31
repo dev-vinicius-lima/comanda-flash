@@ -37,7 +37,11 @@ public class ProductDTO {
         unitPrice = product.getUnitPrice();
         imgUrl = product.getImgUrl();
         createdAt = formatDate(product.getCreatedAt());
-        updatedAt = formatDate(product.getUpdatedAt());
+        if (getUpdatedAt() != null) {
+            updatedAt = formatDate(product.getUpdatedAt());
+        } else {
+            updatedAt = "";
+        }
 
         if (product.getCategories() != null) {
             product.getCategories().forEach(cat -> this.categories.add(new CategoryDTO(cat)));

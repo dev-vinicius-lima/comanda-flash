@@ -1,10 +1,14 @@
 package com.vinicius_lima.comanda_flash.dto;
 
 import com.vinicius_lima.comanda_flash.entities.CustomerOrder;
+import com.vinicius_lima.comanda_flash.entities.OrderItem;
 
+
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Locale;
 
 public class CustomerOrderDTO {
     private Long id;
@@ -18,6 +22,8 @@ public class CustomerOrderDTO {
     private List<OrderItemDTO> items;
 
     private double totalValue;
+    private String formattedTotalValue;
+
 
     public CustomerOrderDTO() {
     }
@@ -29,9 +35,17 @@ public class CustomerOrderDTO {
         customerName = order.getCustomer().getName();
         status = order.getStatus();
         createdAt = formatDate(order.getCreatedAt());
-        updatedAt = formatDate(order.getUpdatedAt());
+        if (getUpdatedAt() != null) {
+            updatedAt = formatDate(order.getUpdatedAt());
+        } else {
+            updatedAt = "";
+        }
         items = order.getItems().stream().map(OrderItemDTO::new).toList();
 
+        totalValue = order.getItems().stream()
+                .mapToDouble(OrderItem::getTotalPrice)
+                .sum();
+        formattedTotalValue = formatCurrency(totalValue);
     }
 
     public Long getId() {
@@ -104,5 +118,18 @@ public class CustomerOrderDTO {
             return dateTime.format(formatter);
         }
         return null;
+    }
+
+    private String formatCurrency(double value) {
+        NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance(new Locale("pt", "BR"));
+        return currencyFormatter.format(value);
+    }
+
+    public String getFormattedTotalValue() {
+        return formattedTotalValue;
+    }
+
+    public void setFormattedTotalValue(String formattedTotalValue) {
+        this.formattedTotalValue = formattedTotalValue;
     }
 }

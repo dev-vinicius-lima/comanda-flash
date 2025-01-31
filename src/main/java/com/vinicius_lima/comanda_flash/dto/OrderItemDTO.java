@@ -2,24 +2,26 @@ package com.vinicius_lima.comanda_flash.dto;
 
 import com.vinicius_lima.comanda_flash.entities.OrderItem;
 
+import java.math.BigDecimal;
+
 public class OrderItemDTO {
     private final Long productId;
     private String productName;
     private int quantity;
-    private final double totalPrice;
+    private final BigDecimal totalPrice;
 
     public OrderItemDTO(OrderItem item) {
         productId = item.getProduct().getId();
         productName = item.getProduct().getName();
         quantity = item.getQuantity();
-        totalPrice = item.getTotalPrice();
+        this.totalPrice = BigDecimal.valueOf(item.getTotalPrice());
     }
 
     public Long getProductId() {
         return productId;
     }
 
-    public double getTotalPrice() {
+    public BigDecimal getTotalPrice() {
         return totalPrice;
     }
 

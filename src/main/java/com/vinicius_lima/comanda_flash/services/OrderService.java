@@ -46,6 +46,10 @@ public class OrderService {
 
         CustomerOrder order = new CustomerOrder(table, customer, new ArrayList<>());
         order = orderRepository.save(order);
+
+        table.getOrders().add(order);
+        tableRepository.save(table);
+
         return convertToDTO(order);
     }
 
@@ -94,6 +98,8 @@ public class OrderService {
         dto.setStatus(order.getTable().getStatus());
         dto.setCustomerId(order.getCustomer().getId());
 
+        double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
+        dto.setTotalValue(totalValue);
 
         return new CustomerOrderDTO(order);
     }
@@ -124,10 +130,15 @@ public class OrderService {
         });
     }
 
+    @Transactional
     public void delete(Long id) {
-        if (orderRepository.findById(id).isEmpty()) {
-            throw new ResourceNotFoundException("Order not found");
-        }
+        CustomerOrder order = orderRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        Table table = order.getTable();
+        table.getOrders().remove(order);
+        tableRepository.save(table);
+
         orderRepository.deleteById(id);
     }
 

@@ -29,6 +29,12 @@ public class TableController {
         return ResponseEntity.ok(dtos);
     }
 
+    @GetMapping("/{id}")
+    public ResponseEntity<TableDTO> findById(@PathVariable Long id) {
+        TableDTO tableDTO = service.findById(id);
+        return ResponseEntity.ok(tableDTO);
+    }
+
     @PostMapping
     public ResponseEntity<TableDTO> create(@Valid @RequestBody TableDTO dto) {
         dto = service.insert(dto);

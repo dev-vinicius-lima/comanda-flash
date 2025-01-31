@@ -23,6 +23,7 @@ public class TableDTO {
 
     private List<CustomerOrderDTO> orders = new ArrayList<>();
 
+
     public TableDTO() {
     }
 
@@ -30,6 +31,12 @@ public class TableDTO {
         number = entity.getNumber();
         status = StatusText.valueOf(entity.getStatus());
         orders = entity.getOrders().stream().map(CustomerOrderDTO::new).toList();
+    }
+
+    public TableDTO(TableDTO entity) {
+        number = entity.getNumber();
+        status = entity.getStatus();
+        orders = entity.getOrders();
     }
 
 

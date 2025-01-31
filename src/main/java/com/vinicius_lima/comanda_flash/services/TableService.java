@@ -1,8 +1,10 @@
 package com.vinicius_lima.comanda_flash.services;
 
+import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.TableDTO;
+import com.vinicius_lima.comanda_flash.entities.CustomerOrder;
+import com.vinicius_lima.comanda_flash.entities.OrderItem;
 import com.vinicius_lima.comanda_flash.entities.Table;
-import com.vinicius_lima.comanda_flash.enums.StatusText;
 import com.vinicius_lima.comanda_flash.repositories.TableRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
@@ -36,10 +38,17 @@ public class TableService {
         return tableRepository.findByHasOpenOrders().stream().map(TableDTO::new).collect(Collectors.toList());
     }
 
+    public TableDTO findById(Long id) {
+        Table entity = findTableById(id);
+        TableDTO dto = new TableDTO(entity);
+
+        return dto;
+    }
+
 
     public TableDTO update(Long id, TableDTO dto) {
         try {
-            Table entity = findById(id);
+            Table entity = findTableById(id);
             entity.setNumber(dto.getNumber());
             entity.setStatus((dto.getStatus().toString()));
             entity = tableRepository.save(entity);
@@ -49,12 +58,12 @@ public class TableService {
         }
     }
 
-    private Table findById(Long id) {
-        return tableRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Id not found => " + id));
-    }
-
     public void delete(Long id) {
         tableRepository.deleteById(id);
+    }
+
+    private Table findTableById(Long id) {
+        return tableRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Id not found => " + id));
     }
 
 }

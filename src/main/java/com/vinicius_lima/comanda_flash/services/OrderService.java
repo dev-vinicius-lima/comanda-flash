@@ -3,24 +3,27 @@ package com.vinicius_lima.comanda_flash.services;
 import com.vinicius_lima.comanda_flash.dto.ClosedOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
-import com.vinicius_lima.comanda_flash.entities.Customer;
-import com.vinicius_lima.comanda_flash.entities.CustomerOrder;
-import com.vinicius_lima.comanda_flash.entities.OrderItem;
-import com.vinicius_lima.comanda_flash.entities.Table;
+import com.vinicius_lima.comanda_flash.dto.OrderItemDTO;
+import com.vinicius_lima.comanda_flash.entities.*;
 import com.vinicius_lima.comanda_flash.repositories.CustomerRepository;
 import com.vinicius_lima.comanda_flash.repositories.OrderRepository;
+import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
 import com.vinicius_lima.comanda_flash.repositories.TableRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
     @Autowired
     private TableRepository tableRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -41,30 +44,41 @@ public class OrderService {
         return convertToDTO(order);
     }
 
-    public ClosedOrderDTO closeOrder(Long orderId) {
+    public CustomerOrderDTO addProductToOrder(Long orderId, Long productId, Integer quantity) {
+
         CustomerOrder order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new ResourceNotFoundException("Order not found"));
+
+        Product product = productRepository.findById(productId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found"));
+
+        OrderItem orderItem = new OrderItem();
+        orderItem.setOrder(order);
+        orderItem.setProduct(product);
+        orderItem.setQuantity(quantity);
+
+        order.getItems().add(orderItem);
+        orderRepository.save(order);
+
+        double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
+
+        CustomerOrderDTO orderDTO = convertToDTO(order);
+        orderDTO.setTotalValue(totalValue);
+        return orderDTO;
+
+    }
+
+    public ClosedOrderDTO closeOrder(Long orderId) {
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         order.setStatus("Fechada");
         orderRepository.save(order);
 
-        double totalValue = order.getItems().stream()
-                .mapToDouble(OrderItem::getTotalPrice)
-                .sum();
+        double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
 
-        String consumptionDescription = order.getItems().stream()
-                .map(item -> item.getQuantity() + " x " + item.getProduct().getName())
-                .collect(Collectors.joining(", "));
+        String consumptionDescription = order.getItems().stream().map(item -> item.getQuantity() + " x " + item.getProduct().getName()).collect(Collectors.joining(", "));
 
-        return new ClosedOrderDTO(
-                order.getId(),
-                order.getTable().getNumber(),
-                order.getCustomer().getId(),
-                order.getCustomer().getName(),
-                order.getStatus(),
-                totalValue,
-                consumptionDescription
-        );
+        return new ClosedOrderDTO(order.getId(), order.getTable().getNumber(), order.getCustomer().getId(), order.getCustomer().getName(), order.getStatus(), totalValue, consumptionDescription);
     }
 
     private CustomerOrderDTO convertToDTO(CustomerOrder order) {
@@ -74,10 +88,17 @@ public class OrderService {
         dto.setCustomerName(order.getCustomer().getName());
         dto.setStatus(order.getTable().getStatus());
         dto.setCustomerId(order.getCustomer().getId());
+
+
         return new CustomerOrderDTO(order);
     }
 
     private Customer convertToEntity(CustomerDTO customerDTO) {
         return new Customer(customerDTO.getName(), customerDTO.isAnonymous());
     }
+
+    public CustomerOrderDTO findById(Long orderId) {
+        return convertToDTO(orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found")));
+    }
+
 }

@@ -3,20 +3,24 @@ package com.vinicius_lima.comanda_flash.dto;
 import com.vinicius_lima.comanda_flash.entities.OrderItem;
 
 public class OrderItemDTO {
-    private Long id;
+    private final Long productId;
     private String productName;
     private int quantity;
     private final double totalPrice;
 
     public OrderItemDTO(OrderItem item) {
-        id = item.getId();
+        productId = item.getProduct().getId();
         productName = item.getProduct().getName();
         quantity = item.getQuantity();
         totalPrice = item.getTotalPrice();
     }
 
-    public Long getId() {
-        return id;
+    public Long getProductId() {
+        return productId;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
     }
 
     public String getProductName() {

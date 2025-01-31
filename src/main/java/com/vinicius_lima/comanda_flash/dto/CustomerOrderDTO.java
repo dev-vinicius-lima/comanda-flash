@@ -17,6 +17,8 @@ public class CustomerOrderDTO {
 
     private List<OrderItemDTO> items;
 
+    private double totalValue;
+
     public CustomerOrderDTO() {
     }
 
@@ -62,6 +64,14 @@ public class CustomerOrderDTO {
 
     public void setItems(List<OrderItemDTO> items) {
         this.items = items;
+    }
+
+    public double getTotalValue() {
+        return totalValue;
+    }
+
+    public void setTotalValue(double totalValue) {
+        this.totalValue = totalValue;
     }
 
     public String getCustomerName() {

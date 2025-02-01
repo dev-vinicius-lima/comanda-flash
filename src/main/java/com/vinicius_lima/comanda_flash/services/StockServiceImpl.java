@@ -7,6 +7,8 @@ import com.vinicius_lima.comanda_flash.utils.InfoEmailSend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
 
 @Service
 @Transactional
@@ -17,6 +19,9 @@ public class StockServiceImpl implements StockService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private TemplateEngine templateEngine;
 
     @Override
     public void subtractStock(Long productId, Integer quantity) {
@@ -29,7 +34,7 @@ public class StockServiceImpl implements StockService {
         product.setStock(product.getStock() - quantity);
 
         if (product.getStock() < product.getLowStockThreshold()) {
-            InfoEmailSend infoEmailSend = new InfoEmailSend("Maila Gomes", "mailagomes04@gmail.com", "Estoque baixo - Comanda Flash");
+            InfoEmailSend infoEmailSend = new InfoEmailSend("Maila Gomes", "viniciuslimaes@hotmail.com", "Estoque baixo - Comanda Flash");
             generateLowStockAlert(product, infoEmailSend);
         }
 
@@ -52,20 +57,15 @@ public class StockServiceImpl implements StockService {
     }
 
     private void generateLowStockAlert(Product product, InfoEmailSend infoEmailSend) {
-        String message = String.format(
-                "Prezado(a), " + infoEmailSend.getResponsibleName() + " \n\n" +
-                        "Gostaríamos de informar que o estoque do produto " + product.getName() + " está abaixo do nível ideal.\n\n" +
-                        "Detalhes do Produto:\n" +
-                        "- Nome do Produto: " + product.getName() + "\n" +
-                        "- Quantidade Atual em Estoque: " + product.getStock() + " unidades. \n" +
-                        "- Nível de Estoque Ideal: " + product.getLowStockThreshold() + " unidades.\n\n" +
-                        "Recomendamos que sejam tomadas as devidas providências para reabastecer o estoque o mais breve possível, a fim de evitar a interrupção nas vendas e garantir a satisfação dos nossos clientes.\n\n" +
-                        "Caso tenha alguma dúvida ou precise de assistência, não hesite em nos contatar.\n\n" +
-                        "Atenciosamente,\n" +
-                        "Desenvolvedor Vinicius Lima\n" +
-                        "cel: (92) 98505-1739 \n" +
-                        "Comanda Flash. \n");
-        emailService.sendEmail(infoEmailSend.getResponsibleEmail(), infoEmailSend.getTitleEmail(), message);
+        Context context = new Context();
+        context.setVariable("responsibleName", infoEmailSend.getResponsibleName());
+        context.setVariable("productName", product.getName());
+        context.setVariable("currentStock", product.getStock());
+        context.setVariable("lowStockThreshold", product.getLowStockThreshold());
+
+        String body = templateEngine.process("email_template.html", context);
+
+        emailService.sendEmail(infoEmailSend.getResponsibleEmail(), infoEmailSend.getTitleEmail(), body);
 
     }
 }

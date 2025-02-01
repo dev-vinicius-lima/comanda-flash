@@ -64,7 +64,7 @@ public class OrderService {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
         if (product.getStock() < quantity) {
-            throw new InsufficientStockException("Produto do id " + productId + " indisponível no estoque.");
+            throw new InsufficientStockException("Produto do id " + productId + " indisponível no estoque... quantidade restante em estoque: " + product.getStock());
         }
 
         OrderItem orderItem = new OrderItem();

@@ -1,6 +1,7 @@
 package com.vinicius_lima.comanda_flash.controllers.exceptions;
 
 import com.vinicius_lima.comanda_flash.enums.StatusText;
+import com.vinicius_lima.comanda_flash.services.exceptions.InsufficientStockException;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -97,4 +98,16 @@ public class ResourceExceptionHandler {
         return ResponseEntity.status(error.getStatus()).body(error);
     }
 
+
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ValidationError> handlePropertyReference(InsufficientStockException e, HttpServletRequest request) {
+        ValidationError error = new ValidationError();
+        error.setTimestamp(Instant.now());
+        error.setStatus(HttpStatus.NOT_FOUND.value());
+        error.setError("Product Not Found");
+        error.setMessage(e.getMessage());
+        error.setPath(request.getRequestURI());
+
+        return ResponseEntity.status(error.getStatus()).body(error);
+    }
 }

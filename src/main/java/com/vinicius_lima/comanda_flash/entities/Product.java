@@ -14,6 +14,10 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @Column(nullable = false)
+    private Integer stock = 0;
+    @Column(name = "low_stock_threshold")
+    private Integer lowStockThreshold = 5;
     private Double unitPrice;
     private String imgUrl;
 
@@ -94,6 +98,21 @@ public class Product {
         return updatedAt;
     }
 
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public Integer getLowStockThreshold() {
+        return lowStockThreshold = 5;
+    }
+
+    public void setLowStockThreshold(Integer lowStockThreshold) {
+        this.lowStockThreshold = lowStockThreshold;
+    }
 
     @Override
     public boolean equals(Object o) {

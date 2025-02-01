@@ -4,9 +4,9 @@ INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Comidas', NOW(),
 INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Sobremesas', NOW(), NOW());
 
 -- Inserindo dados de produtos
-INSERT INTO tb_product (name, unit_price, img_url, created_at, updated_at) VALUES ('Produto A', 29.99, 'url_imagem_a', NOW(), NOW());
-INSERT INTO tb_product (name, unit_price, img_url, created_at, updated_at) VALUES ('Produto B', 49.99, 'url_imagem_b', NOW(), NOW());
-INSERT INTO tb_product (name, unit_price, img_url, created_at, updated_at) VALUES ('Cerveja', 10.00, 'url_imagem_c', NOW(), NOW());
+INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Heineken', 14.99, 'url_imagem_a', 8, NOW(), NOW());
+INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Brahma', 9.99, 'url_imagem_b', 7, NOW(), NOW());
+INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Budweiser', 10.00, 'url_imagem_c', 4, NOW(), NOW());
 
 -- Associando produtos às categorias (relacionamento muitos-para-muitos)
 INSERT INTO tb_product_category (product_id, category_id) VALUES (1, 1); -- Produto A -> Bebidas

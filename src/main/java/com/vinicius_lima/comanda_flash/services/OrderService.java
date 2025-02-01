@@ -5,6 +5,7 @@ import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.entities.*;
 import com.vinicius_lima.comanda_flash.repositories.*;
+import com.vinicius_lima.comanda_flash.services.exceptions.InsufficientStockException;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,9 @@ public class OrderService {
     @Autowired
     private OrderItemRepository orderItemRepository;
 
+    @Autowired
+    private StockService stockService;
+
 
     public CustomerOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
 
@@ -59,6 +63,10 @@ public class OrderService {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
+        if (product.getStock() < quantity) {
+            throw new InsufficientStockException("Produto do id " + productId + " indisponível no estoque.");
+        }
+
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
@@ -66,6 +74,8 @@ public class OrderService {
 
         order.getItems().add(orderItem);
         orderRepository.save(order);
+
+        stockService.subtractStock(productId, quantity);
 
         BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
         totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);

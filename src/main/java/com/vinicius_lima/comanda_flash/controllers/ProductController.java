@@ -1,6 +1,7 @@
 package com.vinicius_lima.comanda_flash.controllers;
 
 import com.vinicius_lima.comanda_flash.dto.ProductDTO;
+import com.vinicius_lima.comanda_flash.dto.StockStatusDTO;
 import com.vinicius_lima.comanda_flash.entities.Product;
 import com.vinicius_lima.comanda_flash.services.ProductService;
 import jakarta.validation.Valid;
@@ -32,6 +33,20 @@ public class ProductController {
         return ResponseEntity.ok(dto);
     }
 
+    @GetMapping("/{id}/stock-status")
+    public ResponseEntity<StockStatusDTO> checkStockStatus(@PathVariable Long id) {
+        boolean isLowStock = service.verifyLowStock(id);
+        ProductDTO product = service.getProductById(id);
+
+        StockStatusDTO dto = new StockStatusDTO(
+                product.getStock(),
+                product.getLowStockThreshold(),
+                isLowStock
+        );
+
+        return ResponseEntity.ok(dto);
+    }
+
     @PostMapping
     public ResponseEntity<ProductDTO> insert(@Valid @RequestBody ProductDTO dto) {
         dto = service.insert(dto);
@@ -43,6 +58,13 @@ public class ProductController {
     public ResponseEntity<ProductDTO> update(@PathVariable Long id, @Valid @RequestBody ProductDTO dto) {
         dto = service.update(id, dto);
         return ResponseEntity.ok(dto);
+    }
+
+    @PutMapping("/{id}/sale")
+    public ResponseEntity<Void> processSale(@PathVariable Long id,
+                                            @RequestParam Integer quantity) {
+        service.processSale(id, quantity);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")

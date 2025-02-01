@@ -15,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 public class ProductService {
     @Autowired
@@ -22,6 +24,9 @@ public class ProductService {
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private StockServiceImpl stockService;
 
     @Transactional
     public ProductDTO insert(ProductDTO dto) {
@@ -78,5 +83,25 @@ public class ProductService {
             Category category = categoryRepository.getReferenceById(catDTO.getId());
             entity.getCategories().add(category);
         }
+    }
+
+    @Transactional
+    public void processSale(Long productId, Integer quantity) {
+        ProductDTO product = getProductById(productId);
+        stockService.subtractStock(productId, quantity);
+    }
+
+    public boolean verifyLowStock(Long id) {
+        Product product = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
+
+
+        return Optional.ofNullable(product.getLowStockThreshold())
+                .map(threshold -> product.getStock() < threshold)
+                .orElse(false);
+    }
+
+    public void restock(Long productId, Integer quantity) {
+        stockService.addStock(productId, quantity);
     }
 }

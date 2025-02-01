@@ -19,6 +19,10 @@ public class ProductDTO {
     @Positive(message = "O preço deve ser positivo.")
     @NotNull(message = "O preço do produto é obrigatório")
     private Double unitPrice;
+    @Positive(message = "A quantidade deve ser positiva.")
+    @NotNull(message = "A quantidade do produto é obrigatória")
+    private Integer stock;
+    private Integer lowStockThreshold;
 
     private String imgUrl;
 
@@ -35,6 +39,8 @@ public class ProductDTO {
         this.id = product.getId();
         name = product.getName();
         unitPrice = product.getUnitPrice();
+        stock = product.getStock();
+        lowStockThreshold = product.getLowStockThreshold();
         imgUrl = product.getImgUrl();
         createdAt = formatDate(product.getCreatedAt());
         if (getUpdatedAt() != null) {
@@ -100,6 +106,22 @@ public class ProductDTO {
 
     public String getUpdatedAt() {
         return updatedAt;
+    }
+
+    public Integer getStock() {
+        return stock;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
+    public Integer getLowStockThreshold() {
+        return lowStockThreshold;
+    }
+
+    public void setLowStockThreshold(Integer lowStockThreshold) {
+        this.lowStockThreshold = lowStockThreshold;
     }
 
 

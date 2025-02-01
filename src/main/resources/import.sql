@@ -1,3 +1,10 @@
+
+-- Inserindo dados de emails para ser disparado o alerta do estoque
+INSERT INTO tb_email_send (name, email) VALUES ('Vinicius Lima', 'viniciuslimaes@hotmail.com');
+--INSERT INTO tb_email_send (name, email) VALUES ('Maila Gomes', 'mailagomes04@gmail.com');
+--INSERT INTO tb_email_send (name, email) VALUES ('Gleriston Castro', 'xpanium@gmail.com');
+
+
 -- Inserindo dados de categorias
 INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Bebidas', NOW(), NOW());
 INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Comidas', NOW(), NOW());

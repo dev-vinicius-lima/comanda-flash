@@ -1,6 +1,8 @@
 package com.vinicius_lima.comanda_flash.services;
 
+import com.vinicius_lima.comanda_flash.entities.EmailSend;
 import com.vinicius_lima.comanda_flash.entities.Product;
+import com.vinicius_lima.comanda_flash.repositories.EmailSendRepository;
 import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
 import com.vinicius_lima.comanda_flash.utils.InfoEmailSend;
@@ -10,12 +12,17 @@ import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class StockServiceImpl implements StockService {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private EmailSendRepository emailSendRepository;
 
     @Autowired
     private EmailService emailService;
@@ -34,8 +41,7 @@ public class StockServiceImpl implements StockService {
         product.setStock(product.getStock() - quantity);
 
         if (product.getStock() < product.getLowStockThreshold()) {
-            InfoEmailSend infoEmailSend = new InfoEmailSend("Maila Gomes", "viniciuslimaes@hotmail.com", "Estoque baixo - Comanda Flash");
-            generateLowStockAlert(product, infoEmailSend);
+            generateLowStockAlert(product);
         }
 
         productRepository.save(product);
@@ -56,16 +62,18 @@ public class StockServiceImpl implements StockService {
         return product.getStock() <= product.getLowStockThreshold();
     }
 
-    private void generateLowStockAlert(Product product, InfoEmailSend infoEmailSend) {
-        Context context = new Context();
-        context.setVariable("responsibleName", infoEmailSend.getResponsibleName());
-        context.setVariable("productName", product.getName());
-        context.setVariable("currentStock", product.getStock());
-        context.setVariable("lowStockThreshold", product.getLowStockThreshold());
+    private void generateLowStockAlert(Product product) {
+        List<EmailSend> emailSends = emailSendRepository.findAll();
+        for (EmailSend emailSend : emailSends) {
+            Context context = new Context();
+            context.setVariable("responsibleName", emailSend.getName());
+            context.setVariable("productName", product.getName());
+            context.setVariable("currentStock", product.getStock());
+            context.setVariable("lowStockThreshold", product.getLowStockThreshold());
 
-        String body = templateEngine.process("email_template.html", context);
+            String body = templateEngine.process("email_template.html", context);
 
-        emailService.sendEmail(infoEmailSend.getResponsibleEmail(), infoEmailSend.getTitleEmail(), body);
-
+            emailService.sendEmail(emailSend.getEmail(), "Estoque baixo - Comanda Flash", body);
+        }
     }
 }

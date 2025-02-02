@@ -15,7 +15,7 @@ public class Product {
     private Long id;
     private String name;
     @Column(nullable = false)
-    private Integer stock = 0;
+    private Integer stock;
     @Column(name = "low_stock_threshold")
     private Integer lowStockThreshold = 5;
     private Double unitPrice;

@@ -17,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +41,11 @@ public class OrderService {
     @Autowired
     private StockService stockService;
 
+    @Autowired
+    private Executor asyncExecutor;
 
+
+    @Transactional
     public CustomerInsertOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
 
         Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new ResourceNotFoundException("Table not found"));
@@ -64,10 +70,6 @@ public class OrderService {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Product not found"));
 
-        if (product.getStock() < quantity) {
-            throw new InsufficientStockException("Produto do id " + productId + " indisponível no estoque... quantidade restante em estoque: " + product.getStock());
-        }
-
         OrderItem orderItem = new OrderItem();
         orderItem.setOrder(order);
         orderItem.setProduct(product);
@@ -75,6 +77,16 @@ public class OrderService {
 
         order.getItems().add(orderItem);
         orderRepository.save(order);
+
+        CompletableFuture.runAsync(() -> {
+            try {
+                stockService.subtractStock(productId, quantity);
+            } catch (IllegalArgumentException e) {
+                deleteProductFromOrder(orderId, productId);
+                throw e;
+            }
+        }, asyncExecutor);
+
 
         stockService.subtractStock(productId, quantity);
 

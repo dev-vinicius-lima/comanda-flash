@@ -5,8 +5,8 @@ import com.vinicius_lima.comanda_flash.entities.Product;
 import com.vinicius_lima.comanda_flash.repositories.EmailSendRepository;
 import com.vinicius_lima.comanda_flash.repositories.ProductRepository;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
-import com.vinicius_lima.comanda_flash.utils.InfoEmailSend;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.TemplateEngine;
@@ -30,6 +30,7 @@ public class StockServiceImpl implements StockService {
     @Autowired
     private TemplateEngine templateEngine;
 
+    @Async
     @Override
     public void subtractStock(Long productId, Integer quantity) {
         Product product = productRepository.findById(productId).orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado"));
@@ -62,6 +63,7 @@ public class StockServiceImpl implements StockService {
         return product.getStock() <= product.getLowStockThreshold();
     }
 
+    @Async
     private void generateLowStockAlert(Product product) {
         List<EmailSend> emailSends = emailSendRepository.findAll();
         for (EmailSend emailSend : emailSends) {

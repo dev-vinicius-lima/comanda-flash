@@ -1,11 +1,16 @@
 package com.vinicius_lima.comanda_flash.entities;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.Cache;
+
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Entity()
 @jakarta.persistence.Table(name = "tb_customer_order")
 public class CustomerOrder {
@@ -23,6 +28,7 @@ public class CustomerOrder {
     @JoinColumn(name = "customer_id")
     private Customer customer;
 
+    @BatchSize(size = 10)
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<OrderItem> items = new ArrayList<>();
 

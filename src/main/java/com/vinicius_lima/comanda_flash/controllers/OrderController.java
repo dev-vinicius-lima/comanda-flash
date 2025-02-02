@@ -2,8 +2,10 @@ package com.vinicius_lima.comanda_flash.controllers;
 
 import com.vinicius_lima.comanda_flash.dto.ClosedOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
+import com.vinicius_lima.comanda_flash.dto.CustomerInsertOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.services.OrderService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -34,9 +36,9 @@ public class OrderController {
     }
 
     @PostMapping("/open")
-    public ResponseEntity<CustomerOrderDTO> openOrder(@RequestParam(value = "number") Integer tableNumber, @RequestBody CustomerDTO dto) {
-        CustomerOrderDTO orderDTO = service.openOrder(tableNumber, dto);
-        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(orderDTO.getId()).toUri();
+    public ResponseEntity<CustomerInsertOrderDTO> openOrder(@RequestParam(value = "number", defaultValue = "0") Integer tableNumber, @Valid @RequestBody CustomerDTO dto) {
+        CustomerInsertOrderDTO orderDTO = service.openOrder(tableNumber, dto);
+        URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(orderDTO.getIdOrder()).toUri();
 
         return ResponseEntity.created(uri).body(orderDTO);
     }

@@ -2,6 +2,7 @@ package com.vinicius_lima.comanda_flash.services;
 
 import com.vinicius_lima.comanda_flash.dto.ClosedOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
+import com.vinicius_lima.comanda_flash.dto.CustomerInsertOrderDTO;
 import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
 import com.vinicius_lima.comanda_flash.entities.*;
 import com.vinicius_lima.comanda_flash.repositories.*;
@@ -39,7 +40,7 @@ public class OrderService {
     private StockService stockService;
 
 
-    public CustomerOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
+    public CustomerInsertOrderDTO openOrder(Integer tableNumber, CustomerDTO customerDTO) {
 
         Table table = (Table) tableRepository.findByNumber(tableNumber).orElseThrow(() -> new ResourceNotFoundException("Table not found"));
 
@@ -54,7 +55,7 @@ public class OrderService {
         table.getOrders().add(order);
         tableRepository.save(table);
 
-        return convertToDTO(order);
+        return new CustomerInsertOrderDTO(order);
     }
 
     public CustomerOrderDTO addProductToOrder(Long orderId, Long productId, Integer quantity) {

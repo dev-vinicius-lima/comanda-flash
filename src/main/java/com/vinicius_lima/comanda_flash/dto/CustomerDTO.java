@@ -2,6 +2,7 @@ package com.vinicius_lima.comanda_flash.dto;
 
 import com.vinicius_lima.comanda_flash.entities.Customer;
 
+
 public class CustomerDTO {
     private Long id;
     private String name;

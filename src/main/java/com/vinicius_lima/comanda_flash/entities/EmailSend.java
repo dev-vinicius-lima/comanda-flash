@@ -16,6 +16,15 @@ public class EmailSend {
     private String name;
     private String email;
 
+    public EmailSend() {
+
+    }
+
+    public EmailSend(String email, String name) {
+        this.email = email;
+        this.name = name;
+    }
+
     public Long getId() {
         return id;
     }

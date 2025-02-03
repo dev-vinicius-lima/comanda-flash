@@ -14,7 +14,7 @@ public class CorsConfiguration {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "https://comanda-flash-production.up.railway.app",
+                                "https://comanda-flash-production.up.railway.app/*",
                                 "http://localhost:3000", "http://localhost:8080"
                         )
                         .allowedMethods("*")

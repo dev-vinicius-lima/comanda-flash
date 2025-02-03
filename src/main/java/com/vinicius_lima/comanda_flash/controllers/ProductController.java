@@ -20,7 +20,6 @@ import java.net.URI;
 
 @Tag(name = "Products", description = "Gerenciamento de Produtos")
 @RestController
-@CrossOrigin(origins = {"http://localhost:8080", "https://comanda-flash-production.up.railway.app/products"})
 @RequestMapping("/products")
 public class ProductController {
 

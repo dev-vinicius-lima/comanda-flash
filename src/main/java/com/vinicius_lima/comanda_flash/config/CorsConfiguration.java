@@ -14,10 +14,10 @@ public class CorsConfiguration {
             public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins(
-                                "https://comanda-flash-production.up.railway.app/",
+                                "http://comanda-flash-production.up.railway.app",
                                 "http://localhost:3000", "http://localhost:8080"
                         )
-                        .allowedMethods("*")
+                        .allowedMethods("GET", "POST", "PUT", "DELETE")
                         .allowedHeaders("*")
                         .maxAge(3600);
             }

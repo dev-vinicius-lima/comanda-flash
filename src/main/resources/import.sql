@@ -11,14 +11,21 @@ INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Comidas', NOW(),
 INSERT INTO tb_category (name, created_at, updated_at) VALUES ('Sobremesas', NOW(), NOW());
 
 -- Inserindo dados de produtos
-INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Heineken', 14.99, 'url_imagem_a', 8, NOW(), NOW());
-INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Brahma', 9.99, 'url_imagem_b', 7, NOW(), NOW());
-INSERT INTO tb_product (name, unit_price, img_url, stock, created_at, updated_at) VALUES ('Budweiser', 10.00, 'url_imagem_c', 4, NOW(), NOW());
+-- Inserindo 5 produtos na tabela tb_product
+INSERT INTO tb_product (name, stock, low_stock_threshold, unit_price, img_url, created_at, updated_at)
+VALUES
+    ('Cerveja Heineken', 100, 5, 5.99, 'https://example.com/heineken.jpg', NOW(), NOW()),
+    ('Cerveja Stella Artois', 80, 5, 6.49, 'https://example.com/stella.jpg', NOW(), NOW()),
+    ('Cerveja Budweiser', 120, 5, 4.99, 'https://example.com/budweiser.jpg', NOW(), NOW()),
+    ('Refrigerante Coca-Cola', 200, 10, 3.99, 'https://example.com/coca-cola.jpg', NOW(), NOW()),
+    ('Refrigerante Guaraná Antarctica', 150, 10, 3.49, 'https://example.com/guarana.jpg', NOW(), NOW());
 
 -- Associando produtos às categorias (relacionamento muitos-para-muitos)
 INSERT INTO tb_product_category (product_id, category_id) VALUES (1, 1); -- Produto A -> Bebidas
-INSERT INTO tb_product_category (product_id, category_id) VALUES (2, 2); -- Produto B -> Comidas
-INSERT INTO tb_product_category (product_id, category_id) VALUES (3, 3); -- Produto C -> Sobremesas
+INSERT INTO tb_product_category (product_id, category_id) VALUES (2, 1);
+INSERT INTO tb_product_category (product_id, category_id) VALUES (3, 1);
+INSERT INTO tb_product_category (product_id, category_id) VALUES (4, 1);
+INSERT INTO tb_product_category (product_id, category_id) VALUES (5, 1);
 
 -- Inserindo dados de clientes
 INSERT INTO tb_customer (name, is_anonymous) VALUES ('João Silva', false);

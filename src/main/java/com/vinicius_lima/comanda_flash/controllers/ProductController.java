@@ -34,7 +34,7 @@ public class ProductController {
             @ApiResponse(responseCode = "200", description = "Sucesso"),
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    @GetMapping
+    @GetMapping()
     public ResponseEntity<Page<ProductDTO>> findAllPaged(Pageable pageable) {
         Page<ProductDTO> list = service.findAllPaged(pageable);
         return ResponseEntity.ok(list);

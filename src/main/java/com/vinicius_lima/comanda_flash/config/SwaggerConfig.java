@@ -4,6 +4,7 @@ package com.vinicius_lima.comanda_flash.config;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
+import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,7 +23,11 @@ public class SwaggerConfig {
                         .description("API para gerenciamento de pedidos")
                         .contact(new Contact()
                                 .name("Vinicius Lima")
-                                .email("viniciuslimaes@hotmail.com")));
+                                .email("viniciuslimaes@hotmail.com")))
+                .servers(List.of(
+                        new Server().url("https://comanda-flash-production.up.railway.app")
+                ));
+
     }
 
 }

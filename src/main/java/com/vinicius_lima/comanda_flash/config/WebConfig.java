@@ -9,7 +9,7 @@ import org.springframework.web.servlet.config.annotation.*;
 public class WebConfig implements WebMvcConfigurer {
 
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/api/**")
+        registry.addMapping("/**")
                 .allowedOrigins("http://comanda-flash-production.up.railway.app", "https://comanda-flash-production.up.railway.app")
                 .allowedHeaders("*")
                 .allowedMethods("*")

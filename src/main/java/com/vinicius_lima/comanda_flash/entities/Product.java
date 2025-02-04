@@ -1,15 +1,14 @@
 package com.vinicius_lima.comanda_flash.entities;
 
 import jakarta.persistence.*;
-import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-@Entity
-@Table(name = "tb_product")
+@Entity(name = "tb_product")
 public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +17,7 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
     @Column(name = "low_stock_threshold")
-    private Integer lowStockThreshold;
+    private Integer lowStockThreshold = 5;
     private Double unitPrice;
     private String imgUrl;
 
@@ -36,15 +35,11 @@ public class Product {
     public Product() {
     }
 
-    public Product(Long id, String name, Integer stock, Integer lowStockThreshold, Double unitPrice, String imgUrl, LocalDateTime createdAt, LocalDateTime updatedAt) {
+    public Product(Long id, String name, Double unitPrice, String imgUrl) {
         this.id = id;
         this.name = name;
-        this.stock = stock;
-        this.lowStockThreshold = lowStockThreshold;
         this.unitPrice = unitPrice;
         this.imgUrl = imgUrl;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
 
     }
 
@@ -112,7 +107,7 @@ public class Product {
     }
 
     public Integer getLowStockThreshold() {
-        return lowStockThreshold;
+        return lowStockThreshold = 5;
     }
 
     public void setLowStockThreshold(Integer lowStockThreshold) {

@@ -11,8 +11,8 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins("http://comanda-flash-production.up.railway.app", "https://comanda-flash-production.up.railway.app")
-                .allowedHeaders("Authorization", "Content-Type")
-                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .allowedMethods("*")
                 .allowCredentials(true);
     }
 

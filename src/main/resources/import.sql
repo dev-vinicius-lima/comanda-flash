@@ -30,8 +30,8 @@ INSERT INTO tb_table (number, status) VALUES (0, 'RETIRADA');
 INSERT INTO tb_table (number, status) VALUES (1, 'LOCAL');
 
 -- Inserir usuários
-INSERT INTO users (id, login, password, role) VALUES ('1', 'admin', 'password', 'ADMIN');
-INSERT INTO users (id, login, password, role) VALUES ('2', 'user', 'password', 'USER');
+INSERT INTO users (id, login, password, role) VALUES ('1', 'admin', '$2a$10$GtxuosJldtrW9J8pQKqRleAzxb2phgngKiYN8kGBsTzavuvmBBzfO', 'ADMIN');
+INSERT INTO users (id, login, password, role) VALUES ('2', 'user', '$2a$10$GtxuosJldtrW9J8pQKqRleAzxb2phgngKiYN8kGBsTzavuvmBBzfO', 'USER');
 
 -- Inserir e-mails enviados
 INSERT INTO tb_email_send (email, name) VALUES ('vinicius@example.com', 'Vinicius Lima');

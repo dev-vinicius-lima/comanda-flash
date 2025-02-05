@@ -34,7 +34,7 @@ INSERT INTO users (id, login, password, role) VALUES ('1', 'admin', '$2a$10$Gtxu
 INSERT INTO users (id, login, password, role) VALUES ('2', 'user', '$2a$10$GtxuosJldtrW9J8pQKqRleAzxb2phgngKiYN8kGBsTzavuvmBBzfO', 'USER');
 
 -- Inserir e-mails enviados
-INSERT INTO tb_email_send (email, name) VALUES ('vinicius@example.com', 'Vinicius Lima');
+INSERT INTO tb_email_send (email, name) VALUES ('viniciuslimaes@hotmail.com', 'Vinicius Lima');
 
 -- Inserir pedidos de clientes
 INSERT INTO tb_customer_order (customer_id, table_id, status) VALUES (1, 1, 'Aberta');

@@ -1,10 +1,8 @@
 package com.vinicius_lima.comanda_flash.services;
 
-import com.vinicius_lima.comanda_flash.dto.ClosedOrderDTO;
-import com.vinicius_lima.comanda_flash.dto.CustomerDTO;
-import com.vinicius_lima.comanda_flash.dto.CustomerInsertOrderDTO;
-import com.vinicius_lima.comanda_flash.dto.CustomerOrderDTO;
+import com.vinicius_lima.comanda_flash.dto.*;
 import com.vinicius_lima.comanda_flash.entities.*;
+import com.vinicius_lima.comanda_flash.enums.PaymentMethod;
 import com.vinicius_lima.comanda_flash.repositories.*;
 import com.vinicius_lima.comanda_flash.services.exceptions.InsufficientStockException;
 import com.vinicius_lima.comanda_flash.services.exceptions.ResourceNotFoundException;
@@ -16,7 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
@@ -94,9 +95,7 @@ public class OrderService {
 
         stockService.subtractStock(productId, quantity);
 
-        BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
-
+        BigDecimal totalValue = calculateTotalValue(order);
 
         CustomerOrderDTO orderDTO = convertToDTO(order);
         orderDTO.setTotalValue(totalValue.doubleValue());
@@ -104,17 +103,43 @@ public class OrderService {
 
     }
 
-    public ClosedOrderDTO closeOrder(Long orderId) {
+    public ClosedOrderDTO closeOrder(Long orderId, String paymentMethod) {
+        PaymentMethod method = PaymentMethod.fromString(paymentMethod); // Isso lançará uma exceção se o método for inválido
+
         CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
         order.setStatus("Fechada");
+        order.setPaymentMethod(method.name());
         orderRepository.save(order);
 
         double totalValue = order.getItems().stream().mapToDouble(OrderItem::getTotalPrice).sum();
 
-        String consumptionDescription = order.getItems().stream().map(item -> item.getQuantity() + " x " + item.getProduct().getName()).collect(Collectors.joining(", "));
+        List<OrderItemDTO> items = order.getItems().stream().map(item -> {
+            OrderItemDTO itemDTO = new OrderItemDTO();
+            itemDTO.setProductId(item.getProduct().getId());
+            itemDTO.setProductName(item.getProduct().getName());
+            itemDTO.setQuantity(item.getQuantity());
+            itemDTO.setUnitPrice(BigDecimal.valueOf(item.getProduct().getUnitPrice()));
+            itemDTO.setTotalPrice(BigDecimal.valueOf(item.getTotalPrice()));
+            return itemDTO;
+        }).collect(Collectors.toList());
 
-        return new ClosedOrderDTO(order.getId(), order.getTable().getNumber(), order.getCustomer().getId(), order.getCustomer().getName(), order.getStatus(), totalValue, consumptionDescription);
+
+        ClosedOrderDTO closedOrderDTO = new ClosedOrderDTO();
+        closedOrderDTO.setId(order.getId());
+        closedOrderDTO.setTableNumber(order.getTable().getNumber());
+        closedOrderDTO.setCustomerId(order.getCustomer().getId());
+        closedOrderDTO.setCustomerName(order.getCustomer().getName());
+        closedOrderDTO.setStatus(order.getStatus());
+        closedOrderDTO.setTotalValue(totalValue);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        closedOrderDTO.setClosedAt(LocalDateTime.now().format(formatter));
+
+        closedOrderDTO.setItems(items);
+        closedOrderDTO.setPaymentMethod(method.name());
+
+        return closedOrderDTO;
     }
 
     private CustomerOrderDTO convertToDTO(CustomerOrder order) {
@@ -138,8 +163,7 @@ public class OrderService {
     public CustomerOrderDTO findById(Long orderId) {
         CustomerOrder order = orderRepository.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order not found"));
 
-        BigDecimal totalValue = order.getItems().stream().map(item -> BigDecimal.valueOf(item.getTotalPrice())).reduce(BigDecimal.ZERO, BigDecimal::add);
-        totalValue = totalValue.setScale(2, RoundingMode.HALF_UP);
+        BigDecimal totalValue = calculateTotalValue(order);
 
         CustomerOrderDTO orderDTO = convertToDTO(order);
         orderDTO.setTotalValue(totalValue.doubleValue());
@@ -185,7 +209,12 @@ public class OrderService {
             orderItemRepository.delete(orderItem);
             orderRepository.save(order);
         }
+    }
 
-
+    private BigDecimal calculateTotalValue(CustomerOrder order) {
+        return order.getItems().stream()
+                .map(item -> BigDecimal.valueOf(item.getTotalPrice()))
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 }

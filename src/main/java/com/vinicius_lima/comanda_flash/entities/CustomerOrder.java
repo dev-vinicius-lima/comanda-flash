@@ -37,6 +37,9 @@ public class CustomerOrder {
     @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
     private LocalDateTime updatedAt;
 
+    private String paymentMethod;
+
+
     public CustomerOrder() {
     }
 
@@ -103,5 +106,13 @@ public class CustomerOrder {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(String paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

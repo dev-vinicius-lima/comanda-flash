@@ -103,8 +103,8 @@ public class OrderController {
             @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
     @PostMapping("/close/{id}")
-    public ResponseEntity<ClosedOrderDTO> closeOrder(@PathVariable Long id) {
-        ClosedOrderDTO closedOrderDTO = service.closeOrder(id);
+    public ResponseEntity<ClosedOrderDTO> closeOrder(@PathVariable Long id, @RequestBody String paymentMethod) {
+        ClosedOrderDTO closedOrderDTO = service.closeOrder(id, paymentMethod);
         return ResponseEntity.ok(closedOrderDTO);
     }
 

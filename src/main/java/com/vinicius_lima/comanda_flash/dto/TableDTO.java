@@ -1,6 +1,5 @@
 package com.vinicius_lima.comanda_flash.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vinicius_lima.comanda_flash.entities.Table;
 import com.vinicius_lima.comanda_flash.enums.StatusText;
 import jakarta.persistence.EnumType;
@@ -12,7 +11,6 @@ import java.util.List;
 
 
 public class TableDTO {
-    @JsonIgnore
     private Long id;
 
     @NotNull(message = "O número da mesa é obrigatório.")
@@ -28,12 +26,14 @@ public class TableDTO {
     }
 
     public TableDTO(Table entity) {
+        id = entity.getId();
         number = entity.getNumber();
         status = StatusText.valueOf(entity.getStatus());
         orders = entity.getOrders().stream().map(CustomerOrderDTO::new).toList();
     }
 
     public TableDTO(TableDTO entity) {
+        id = entity.getId();
         number = entity.getNumber();
         status = entity.getStatus();
         orders = entity.getOrders();

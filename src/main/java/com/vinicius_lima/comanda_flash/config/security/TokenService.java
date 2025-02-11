@@ -24,6 +24,7 @@ public class TokenService {
                     .withIssuer("Comanda Flash")
                     .withSubject(user.getLogin())
                     .withExpiresAt(genExpirationDate())
+                    .withClaim("role", String.valueOf(user.getRole()))
                     .sign(algorithm);
             return token;
         } catch (JWTCreationException exception) {
